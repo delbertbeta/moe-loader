@@ -1,0 +1,13 @@
+/MoeLoader/bin/Debug
+/MoeLoader/bin/Release/MoeLoader.exe
+/MoeLoader/bin/Release/Moe_config.ini
+/MoeLoader/bin/Release/MoeLoader.exe.config
+/MoeLoader/bin/Release/MoeSite.dll
+/MoeLoader/bin/Release/MoeSite.pdb
+/MoeLoader/bin/Release/MoeSite.xml
+/MoeLoader/bin/Release/SitePack.dll
+/MoeLoader/bin/Release/SitePack.pdb
+/MoeLoader/obj
+/MoeSite/obj
+/MoeSite/bin
+/SitePack/obj
