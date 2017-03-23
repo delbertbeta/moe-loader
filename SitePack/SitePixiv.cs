@@ -161,7 +161,7 @@ namespace SitePack
                     //eg. member_illust.php?mode=medium&illust_id=29561307&ref=rn-b-5-thumbnail
                     string detailUrl = anode.Attributes["href"].Value.Replace("amp;", "");
                     string previewUrl = null;
-                    
+
                     //P站不直接把预览图地址放在src里面了，所以注释掉原来的几行判断代码。
                     //if (srcType == PixivSrcType.Tag || srcType == PixivSrcType.Author)
                     //    previewUrl = anode.SelectSingleNode(".//img").Attributes["src"].Value;
@@ -245,7 +245,7 @@ namespace SitePack
                 HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(page);
 
-                //04/16/2012 17:44｜600×800｜SAI  or 04/16/2012 17:44｜600×800 or 04/19/2012 22:57｜漫画 6P｜SAI
+                //2017年3月22日 19:43｜2400×1078｜SAI  or 04/16/2012 17:44｜600×800 or 04/19/2012 22:57｜漫画 6P｜SAI
                 i.Date = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[1]").InnerText;
                 //总点数
                 i.Score = int.Parse(doc.DocumentNode.SelectSingleNode("//dd[@class='score-count']").InnerText);
@@ -255,9 +255,13 @@ namespace SitePack
                 //http://i2.pixiv.net/c/600x600/img-master/img/2014/10/08/06/13/30/46422743_p0_master1200.jpg
                 //http://i2.pixiv.net/img-original/img/2014/10/08/06/13/30/46422743_p0.png
                 i.SampleUrl = doc.DocumentNode.SelectSingleNode("//div[@class='works_display']").SelectSingleNode(".//img").Attributes["src"].Value;
-                i.OriginalUrl = i.SampleUrl.Replace("600x600", "1200x1200");
-                i.JpegUrl = i.OriginalUrl;
-                
+                try
+                {
+                    i.OriginalUrl = doc.DocumentNode.SelectSingleNode("//img[@class='original-image']").Attributes["data-src"].Value;
+                    i.JpegUrl = i.OriginalUrl;
+                }
+                catch { }
+
                 //600×800 or 漫画 6P
                 string dimension = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[2]").InnerText;
                 try
@@ -271,7 +275,10 @@ namespace SitePack
                 {
                     if (i.Width == 0 && i.Height == 0)
                     {
+                        // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p1.jpg
+                        // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p0.jpg
                         //i.OriginalUrl = i.SampleUrl.Replace("600x600", "1200x1200");
+                        i.OriginalUrl = i.SampleUrl;
                         i.JpegUrl = i.OriginalUrl;
                         //manga list
                         //漫画 6P
@@ -282,7 +289,9 @@ namespace SitePack
                         for (int j = 0; j < mangaCount; j++)
                         {
                             //oriUrl = "http://img" + imgsvr + ".pixiv.net/img/" + items[6].Split('/')[4] + "/" + id + "_p0." + ext;
-                            img.OrignalUrlList.Add(i.OriginalUrl.Replace("_p0", "_p" + j));
+                            //string url = i.SampleUrl.Substring(0, i.SampleUrl.IndexOf("c/")) + "img-original/" + i.SampleUrl.Substring(i.SampleUrl.IndexOf("img"), i.SampleUrl.IndexOf("_p") + 2 - i.SampleUrl.IndexOf("img")) + j.ToString() + ".jpg";
+                            string url = "http://i2.pixiv.net/img-original/" + i.SampleUrl.Substring(i.SampleUrl.IndexOf("img/"), i.SampleUrl.IndexOf("_p") + 2 - i.SampleUrl.IndexOf("img/")) + j.ToString() + ".jpg";
+                            img.OrignalUrlList.Add(url);
                         }
                     }
                 }
@@ -291,6 +300,11 @@ namespace SitePack
 
             return img;
         }
+
+        //private List<string> GetMangePics(int illustId)
+        //{
+
+        //}
 
         private void Login(System.Net.IWebProxy proxy)
         {
@@ -353,7 +367,7 @@ namespace SitePack
                 req.Accept = "application/json, text/javascript, */*; q=0.01";
                 req.CookieContainer = cookieContainer;
 
-                
+
                 System.IO.Stream str = req.GetRequestStream();
                 str.Write(buf, 0, buf.Length);
                 str.Close();
