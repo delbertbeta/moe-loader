@@ -356,10 +356,11 @@ namespace MoeLoader
         }
         #endregion
 
+        // 作者
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             MessageBox.Show(this, "Moe Loader V" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version +
-            "\r\n\r\n©2008-2013 esonic\r\nAll rights reserved.\r\n\r\nEmail: esonice@gmail.com\r\nSite: http://moeloader.sinaapp.com/", "Moe Loader - 关于", MessageBoxButton.OK, MessageBoxImage.Information);
+            "\r\n\r\n©2008-2013 esonic\r\nAll rights reserved.\r\n\r\nEmail: esonice@gmail.com\r\nSite: http://moeloader.sinaapp.com/" + "\r\n©2017 Delbertbeta & RuMaxwell\r\n\r\nEmail: delbertbeta@live.com\r\n", "Moe Loader - 关于", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         /// <summary>

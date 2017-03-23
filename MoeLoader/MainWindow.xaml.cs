@@ -121,6 +121,26 @@ namespace MoeLoader
         {
             InitializeComponent();
 
+            // 检测文件完整性
+            //if (!System.IO.File.Exists(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\MoeSite.dll"))
+            //{
+            //    string ex = "找不到 MoeSite.dll，请检查程序完整性！\r\n下载链接：http://app.delbertbeta.cc/moeloader/moeloader.zip";
+            //    System.IO.File.WriteAllText("moe_fatal.txt", ex);
+            //    System.Media.SystemSounds.Asterisk.Play();
+            //    (new ErrForm(ex.ToString())).ShowDialog();
+            //    System.Diagnostics.Process.GetCurrentProcess().Kill();
+            //}
+
+            if (!System.IO.File.Exists(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\SitePack.dll"))
+            {
+                string ex = "找不到 SitePack.dll，请检查程序完整性！\r\n下载链接：http://app.delbertbeta.cc/moeloader/moeloader.zip";
+                System.IO.File.WriteAllText("moe_fatal.txt", ex);
+                System.Media.SystemSounds.Asterisk.Play();
+                (new ErrForm(ex.ToString())).ShowDialog();
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+            }
+
+
             if (!System.IO.File.Exists(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\nofont.txt"))
             {
                 FontFamily = new FontFamily("Microsoft YaHei");
@@ -344,8 +364,8 @@ namespace MoeLoader
                     string filen = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\MoeLoader_v" + remoteVer + ".zip";
                     //while (System.IO.File.Exists(filen))
                     //{
-                        //fileN++;
-                        //filen = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\MoeLoader_New_" + fileN + ".rar";
+                    //fileN++;
+                    //filen = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\MoeLoader_New_" + fileN + ".rar";
                     //}
 
                     web.DownloadFile("http://app.delbertbeta.cc/moeloader/moeloader.zip", filen);
@@ -573,7 +593,7 @@ namespace MoeLoader
             //string logoPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\logo.png";
             //if (System.IO.File.Exists(logoPath))
             //{
-                //image.Source = new BitmapImage(new Uri(logoPath, UriKind.Absolute));
+            //image.Source = new BitmapImage(new Uri(logoPath, UriKind.Absolute));
             //}
             //else image.Source = new BitmapImage(new Uri("Images/logo1.png", UriKind.Relative));
         }
@@ -640,7 +660,7 @@ namespace MoeLoader
                 statusText.Text = IMGLOADING;
                 //if (nowSelectedIndex == 0 || nowSelectedIndex == 1)
                 //{
-                    //itmSmallPre.IsEnabled = true;
+                //itmSmallPre.IsEnabled = true;
                 //}
                 //else itmSmallPre.IsEnabled = false;
 
@@ -948,8 +968,14 @@ namespace MoeLoader
             }
         }
 
-        public bool MaskViewed { get { bool mask = false; 
-            Dispatcher.Invoke(new VoidDel(delegate { mask = itmMaskViewed.IsChecked && searchControl.Text.Length == 0; })); return mask; } }
+        public bool MaskViewed
+        {
+            get
+            {
+                bool mask = false;
+                Dispatcher.Invoke(new VoidDel(delegate { mask = itmMaskViewed.IsChecked && searchControl.Text.Length == 0; })); return mask;
+            }
+        }
         public ViewedID LastViewed
         {
             get
@@ -1051,8 +1077,8 @@ namespace MoeLoader
                         + (DownloadControl.SaveLocation == System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ? "." : DownloadControl.SaveLocation)
                         + "\r\n" + addressType + ";" + (GlassHelper.noBlur ? "0" : "1")
                         + ";" + numOfLoading + ";" + (itmMaskViewed.IsChecked ? "1" : "0") + ";" + words + ";" + Proxy + ";" + BossKey + ";" + (itmSmallPre.IsChecked ? "1" : "0") + ";"
-                        + ProxyType + ";" + (int)ActualWidth + "," + (int)ActualHeight + ";" + (togglePram.IsChecked.Value ? "1" : "0") + ";" + PreFetcher.CachedImgCount + ";" 
-                        + (downloadC.IsSepSave ? "1" : "0") + ";" + (itmxExplicit.IsChecked ? "1" : "0") + ";" + namePatter+ ";" + num + ";" + bgSt + ";" + bgHe + ";" + bgVe + ";" + bgOp + "\r\n";
+                        + ProxyType + ";" + (int)ActualWidth + "," + (int)ActualHeight + ";" + (togglePram.IsChecked.Value ? "1" : "0") + ";" + PreFetcher.CachedImgCount + ";"
+                        + (downloadC.IsSepSave ? "1" : "0") + ";" + (itmxExplicit.IsChecked ? "1" : "0") + ";" + namePatter + ";" + num + ";" + bgSt + ";" + bgHe + ";" + bgVe + ";" + bgOp + "\r\n";
                     foreach (KeyValuePair<string, ViewedID> id in viewedIds)
                     {
                         text += id.Key + ":" + id.Value + "\r\n";
@@ -1074,7 +1100,7 @@ namespace MoeLoader
             {
                 //imgBorder.BorderThickness = new Thickness(0, 1, 1, 1);
                 //imgBorder.CornerRadius = new CornerRadius(0, 3, 3, 0);
-              
+
                 toggleDownload.ToolTip = "隐藏下载面板";
                 System.Windows.Media.Animation.Storyboard sb = FindResource("showDownload") as System.Windows.Media.Animation.Storyboard;
                 if (IsCtrlDown())
@@ -1099,9 +1125,9 @@ namespace MoeLoader
             {
                 //if (imgBorder.ActualWidth < 10)
                 //{
-                    //System.Windows.Media.Animation.Storyboard sb1 = FindResource("moveLogoBack") as System.Windows.Media.Animation.Storyboard;
-                    //statusB.Visibility = System.Windows.Visibility.Visible;
-                    //sb1.Begin();
+                //System.Windows.Media.Animation.Storyboard sb1 = FindResource("moveLogoBack") as System.Windows.Media.Animation.Storyboard;
+                //statusB.Visibility = System.Windows.Visibility.Visible;
+                //sb1.Begin();
                 //}
 
                 //imgBorder.BorderThickness = new Thickness(0, 1, 0, 1);
@@ -1550,7 +1576,7 @@ namespace MoeLoader
         {
             //if (isClose)
             //{
-                //return;
+            //return;
             //}
 
             if (downloadC.IsWorking)
@@ -1785,7 +1811,7 @@ namespace MoeLoader
                     List<string> oriUrls = GetImgAddress(imgs[i]);
                     for (int c = 0; c < oriUrls.Count; c++)
                     {
-                        string fileName = GenFileName(imgs[i]) +  (oriUrls.Count > 1 ? ("_" + c) : "");
+                        string fileName = GenFileName(imgs[i]) + (oriUrls.Count > 1 ? ("_" + c) : "");
                         urls.Add(new MiniDownloadItem(fileName, oriUrls[c]));
                     }
                 }
