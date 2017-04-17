@@ -88,6 +88,7 @@ namespace MoeLoader
         }
 
         public string Url { get; set; }
+        public string DetailUrl { get; set; }
 
         public string Speed
         {
@@ -105,13 +106,14 @@ namespace MoeLoader
             OnPropertyChanged("Speed");
         }
 
-        public DownloadItem(string fileName, string url)
+        public DownloadItem(string fileName, string url, string detailUrl)
         {
             FileName = fileName;
             Size = "N/A";
             Progress = 0;
             StatusE = DLStatus.Wait;
             Url = url;
+            DetailUrl = detailUrl;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

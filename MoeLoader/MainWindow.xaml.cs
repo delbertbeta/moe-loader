@@ -309,14 +309,21 @@ namespace MoeLoader
             }
         }
 
-        public static string IsNeedReferer(string url)
+
+        // Pixiv 现在需要一个 referer 才能正常下图，否则 forbidden.
+        public static string IsNeedReferer(string url, string detailUrl)
         {
-            foreach (ImageSite site in SiteManager.Instance.Sites)
-            {
-                if (url.Contains(site.ShortName))
-                    return site.Referer;
-            }
-            return null;
+            //if (detailUrl.Contains("pixiv"))
+            //{
+            //    return detailUrl;
+            //}
+            //foreach (ImageSite site in SiteManager.Instance.Sites)
+            //{
+            //    if (url.Contains(site.ShortName))
+            //        return site.Referer;
+            //}
+            //return null;
+            return detailUrl;
         }
 
         private void CheckVersion()
@@ -725,11 +732,14 @@ namespace MoeLoader
             toggleDownload_Click(null, null);
 
             //string url = itmJpg.IsChecked ? imgs[index].Jpeg_url : imgs[index].OriUrl;
+            System.Diagnostics.Debugger.Break();
             List<string> oriUrls = GetImgAddress(imgs[index]);
+            List<string> oriDetailUrls = GetImgDetailUrls(imgs[index]);
+            
             for (int c = 0; c < oriUrls.Count; c++)
             {
                 string fileName = GenFileName(imgs[index]) + (oriUrls.Count > 1 ? ("_" + c) : "");
-                downloadC.AddDownload(new MiniDownloadItem[] { new MiniDownloadItem(fileName, oriUrls[c]) });
+                downloadC.AddDownload(new MiniDownloadItem[] { new MiniDownloadItem(fileName, oriUrls[c], oriDetailUrls[c]) });
             }
             //string url = GetImgAddress(imgs[index]);
             //string fileName = GenFileName(imgs[index]);
@@ -1743,6 +1753,20 @@ namespace MoeLoader
             }
         }
 
+        private List<string> GetImgDetailUrls(Img img)
+        {
+            if (img.DetailUrlList.Count > 0)
+            {
+                return img.DetailUrlList;
+            }
+            else
+            {
+                List<string> detailUrls = new List<string>();
+                detailUrls.Add(img.DetailUrl);
+                return detailUrls;
+            }
+        }
+
         private void togglePram_Click(object sender, RoutedEventArgs e)
         {
             if (togglePram.IsChecked.Value)
@@ -1809,10 +1833,11 @@ namespace MoeLoader
                 foreach (int i in selected)
                 {
                     List<string> oriUrls = GetImgAddress(imgs[i]);
+                    var detailUrl = imgs[i].DetailUrl;
                     for (int c = 0; c < oriUrls.Count; c++)
                     {
                         string fileName = GenFileName(imgs[i]) + (oriUrls.Count > 1 ? ("_" + c) : "");
-                        urls.Add(new MiniDownloadItem(fileName, oriUrls[c]));
+                        urls.Add(new MiniDownloadItem(fileName, oriUrls[c], detailUrl));
                     }
                 }
                 downloadC.AddDownload(urls);

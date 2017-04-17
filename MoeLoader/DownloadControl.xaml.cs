@@ -20,7 +20,8 @@ namespace MoeLoader
     {
         public string url;
         public string fileName;
-        public MiniDownloadItem(string file, string url)
+        public string detailUrl;
+        public MiniDownloadItem(string file, string url, string detailUrl)
         {
             if (file != null)
             {
@@ -35,6 +36,7 @@ namespace MoeLoader
             }
             else fileName = null;
             this.url = url;
+            this.detailUrl = detailUrl;
         }
     }
 
@@ -180,7 +182,7 @@ namespace MoeLoader
 
                 try
                 {
-                    DownloadItem itm = new DownloadItem(text, item.url);
+                    DownloadItem itm = new DownloadItem(text, item.url, item.detailUrl);
                     downloadItemsDic.Add(item.url, itm);
                     downloadItems.Add(itm);
                     numLeft++;
@@ -210,7 +212,7 @@ namespace MoeLoader
                 if (numLeft > 0)
                 {
                     string url = downloadItems[downloadItems.Count - numLeft].Url;
-
+                    string detailUrl = downloadItems[downloadItems.Count - numLeft].DetailUrl;
                     //string dest = Uri.UnescapeDataString(url.Substring(url.LastIndexOf('/') + 1));
                     string dest = downloadItems[downloadItems.Count - numLeft].FileName;
                     dest = ReplaceInvalidPathChars(dest, ' ');
@@ -244,7 +246,7 @@ namespace MoeLoader
                     {
                         downloadItems[downloadItems.Count - numLeft].StatusE = DLStatus.DLing;
 
-                        DownloadTask task = new DownloadTask(url, dest, MainWindow.IsNeedReferer(url));
+                        DownloadTask task = new DownloadTask(url, dest, MainWindow.IsNeedReferer(url, detailUrl));
                         webs.Add(url, task);
 
                         //异步下载开始
@@ -592,7 +594,7 @@ namespace MoeLoader
                 {
                     downloadItems.Remove(item);
                     downloadItemsDic.Remove(item.Url);
-                    AddDownload(new MiniDownloadItem[] { new MiniDownloadItem(item.FileName, item.Url) });
+                    AddDownload(new MiniDownloadItem[] { new MiniDownloadItem(item.FileName, item.Url, item.DetailUrl) });
                 }
             }
         }
@@ -893,10 +895,10 @@ namespace MoeLoader
                     //移除空行
                     if (line.Trim().Length == 0) continue;
                     string[] parts = line.Split('|');
-                    if (parts.Length > 1 && parts[1].Length > 1)
-                        itms.Add(new MiniDownloadItem(parts[1], parts[0]));
+                    if (parts.Length > 2 && parts[1].Length > 2)
+                        itms.Add(new MiniDownloadItem(parts[2], parts[1], parts[0]));
                     else if (parts.Length > 0)
-                        itms.Add(new MiniDownloadItem(null, parts[0]));
+                        itms.Add(new MiniDownloadItem(null, parts[0], null));
                 }
                 //添加至下载列表
                 AddDownload(itms);

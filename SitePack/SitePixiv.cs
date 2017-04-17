@@ -248,7 +248,7 @@ namespace SitePack
                 //2017年3月22日 19:43｜2400×1078｜SAI  or 04/16/2012 17:44｜600×800 or 04/19/2012 22:57｜漫画 6P｜SAI
                 i.Date = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[1]").InnerText;
                 //总点数
-                i.Score = int.Parse(doc.DocumentNode.SelectSingleNode("//dd[@class='score-count']").InnerText);
+                i.Score = int.Parse(doc.DocumentNode.SelectSingleNode("//dd[@class='view-count']").InnerText);
                 //「カルタ＆わたぬき」/「えれっと」のイラスト [pixiv]
                 i.Desc += doc.DocumentNode.SelectSingleNode("//title").InnerText.Replace("のイラスト [pixiv]", "").Replace("の漫画 [pixiv]", "").Replace("「", "").Replace("」", "").Replace("/", "_");
                 //URLS
@@ -271,34 +271,61 @@ namespace SitePack
                     i.Height = int.Parse(System.Text.RegularExpressions.Regex.Match(dimension.Substring(dimension.IndexOf('×') + 1), @"\d+").Value);
                 }
                 catch { }
-                try
+                //try
+                //{
+                if (i.Width == 0 && i.Height == 0)
                 {
-                    if (i.Width == 0 && i.Height == 0)
-                    {
-                        // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p1.jpg
-                        // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p0.jpg
-                        //i.OriginalUrl = i.SampleUrl.Replace("600x600", "1200x1200");
-                        i.OriginalUrl = i.SampleUrl;
-                        i.JpegUrl = i.OriginalUrl;
-                        //manga list
-                        //漫画 6P
-                        int index = dimension.IndexOf(' ') + 1;
-                        string mangaPart = dimension.Substring(index, dimension.IndexOf('P') - index);
-                        int mangaCount = int.Parse(mangaPart);
-                        i.Dimension = "Manga " + mangaCount + "P";
-                        for (int j = 0; j < mangaCount; j++)
-                        {
-                            //oriUrl = "http://img" + imgsvr + ".pixiv.net/img/" + items[6].Split('/')[4] + "/" + id + "_p0." + ext;
-                            //string url = i.SampleUrl.Substring(0, i.SampleUrl.IndexOf("c/")) + "img-original/" + i.SampleUrl.Substring(i.SampleUrl.IndexOf("img"), i.SampleUrl.IndexOf("_p") + 2 - i.SampleUrl.IndexOf("img")) + j.ToString() + ".jpg";
-                            string url = "http://i2.pixiv.net/img-original/" + i.SampleUrl.Substring(i.SampleUrl.IndexOf("img/"), i.SampleUrl.IndexOf("_p") + 2 - i.SampleUrl.IndexOf("img/")) + j.ToString() + ".jpg";
-                            img.OrignalUrlList.Add(url);
-                        }
-                    }
+                    // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p1.jpg
+                    // http://i2.pixiv.net/img-original/img/2017/03/21/22/14/40/62031197_p0.jpg
+                    //i.OriginalUrl = i.SampleUrl.Replace("600x600", "1200x1200");
+                    i.OriginalUrl = i.SampleUrl;
+                    i.JpegUrl = i.OriginalUrl;
+                    //manga list
+                    //漫画 6P
+                    int index = dimension.IndexOf(' ') + 1;
+                    string mangaPart = dimension.Substring(index, dimension.IndexOf('P') - index);
+                    int mangaCount = int.Parse(mangaPart);
+                    i.Dimension = "Manga " + mangaCount + "P";
+                    string url = "http://www.pixiv.net/" + doc.DocumentNode.SelectSingleNode("//div[@class='works_display']/a").Attributes["href"].Value;
+                    getMangaUrlList(url, ref i, p);
                 }
-                catch { }
+                //}
+                //catch {
+                //    System.Diagnostics.Debugger.Break();
+                //}
             });
 
             return img;
+        }
+
+        private void getMangaUrlList(string url, ref Img img, System.Net.IWebProxy p)
+        {
+            List<string> urlList = new List<string>();
+            List<string> detailUrlList = new List<string>();
+            MyWebClient web = new MyWebClient();
+            web.Proxy = p;
+            web.Encoding = Encoding.UTF8;
+            web.Headers["Cookie"] = cookie;
+            web.Headers["Referer"] = Referer;
+            string page = web.DownloadString(url);
+
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(page);
+
+            var mangaPreviewNodes = doc.DocumentNode.SelectNodes("//a[@class='full-size-container _ui-tooltip']");
+            foreach (var mangaPreviewNode in mangaPreviewNodes)
+            {
+                string detailPageUrl = "http://www.pixiv.net" + mangaPreviewNode.Attributes["href"].Value;
+                detailUrlList.Add(detailPageUrl);
+                string detailPage = web.DownloadString(detailPageUrl);
+                int urlStartIndex = detailPage.IndexOf("src=") + 5;
+                int urlEndIndex = detailPage.IndexOf("\"", urlStartIndex);
+                var imgUrl = detailPage.Substring(urlStartIndex, urlEndIndex - urlStartIndex);
+                urlList.Add(imgUrl);
+            }
+
+            img.OrignalUrlList = urlList;
+            img.DetailUrlList = detailUrlList;
         }
 
         //private List<string> GetMangePics(int illustId)

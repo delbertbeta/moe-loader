@@ -32,6 +32,7 @@ namespace MoeLoader
         /// 若原图地址不止一个（例如pixiv的漫画），则将多个地址置于此处，该列表不为空时 OriginalUrl 将被忽略
         /// </summary>
         public List<string> OrignalUrlList { get; set; }
+        public List<string> DetailUrlList { get; set; }
 
         /// <summary>
         /// 原图宽度
